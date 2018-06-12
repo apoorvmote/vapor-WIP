@@ -6,10 +6,12 @@ public func routes(_ router: Router) throws {
     router.get("hello") { req in
         return "Hello, world!"
     }
-
-    // Example of configuring a controller
-    let todoController = TodoController()
-    router.get("todos", use: todoController.index)
-    router.post("todos", use: todoController.create)
-    router.delete("todos", Todo.parameter, use: todoController.delete)
+    
+    router.post(Work.self, at: "api", "works") { (request, data) -> Future<Work> in
+        
+        return try request.content.decode(Work.self).flatMap(to: Work.self, { (work) -> EventLoopFuture<Work> in
+            
+            return work.save(on: request)
+        })
+    }
 }
