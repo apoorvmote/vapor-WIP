@@ -1,7 +1,9 @@
 
 import Vapor
 
-import FluentSQLite
+//import FluentSQLite
+//import FluentMySQL
+import FluentPostgreSQL
 
 final class Work: Codable {
     
@@ -19,7 +21,11 @@ final class Work: Codable {
     }
 }
 
-extension Work: SQLiteModel {}
+//extension Work: SQLiteModel {}
+
+//extension Work: MySQLModel {}
+
+extension Work: PostgreSQLModel {}
 
 extension Work: Migration {}
 
