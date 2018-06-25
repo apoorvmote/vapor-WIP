@@ -1,8 +1,6 @@
 
 import Vapor
 
-//import FluentSQLite
-//import FluentMySQL
 import FluentPostgreSQL
 
 final class Work: Codable {
@@ -20,10 +18,6 @@ final class Work: Codable {
         percentProgress = progress
     }
 }
-
-//extension Work: SQLiteModel {}
-
-//extension Work: MySQLModel {}
 
 extension Work: PostgreSQLModel {}
 
