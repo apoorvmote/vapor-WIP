@@ -56,4 +56,9 @@ extension Work {
         
         return parent(\.employeeID)
     }
+    
+    var category: Siblings<Work, Category, WorkCategoryPivot> {
+        
+        return siblings()
+    }
 }

@@ -34,6 +34,12 @@ struct WorkController: RouteCollection {
         workRoutes.get("sorted", use: getSortedHandler)
         
         workRoutes.get(Work.parameter, "employee", use: getEmployeeHandler)
+        
+        workRoutes.post(Work.parameter, "categories", Category.parameter, use: addCategoryHandler)
+        
+        workRoutes.delete(Work.parameter, "categories", Category.parameter, use: deleteCategoryHandler)
+        
+        workRoutes.get(Work.parameter, "categories", use: getCategoriesHandler)
     }
     
     //    func createHandler(_ request: Request) throws -> Future<Work> {
@@ -136,6 +142,45 @@ struct WorkController: RouteCollection {
         return try request.parameters.next(Work.self).flatMap(to: Employee.self, { (work) -> EventLoopFuture<Employee> in
             
             return work.employee.get(on: request)
+        })
+    }
+    
+    func addCategoryHandler(_ request: Request) throws -> Future<HTTPStatus> {
+        
+        return try flatMap(to: HTTPStatus.self, request.parameters.next(Work.self), request.parameters.next(Category.self), { (work, category) -> EventLoopFuture<HTTPStatus> in
+            
+            let pivot = try WorkCategoryPivot(work.requireID(), category.requireID())
+            
+            return pivot.save(on: request).transform(to: HTTPStatus.created)
+        })
+    }
+    
+    func deleteCategoryHandler(_ request: Request) throws -> Future<HTTPStatus> {
+        
+        return try flatMap(to: HTTPStatus.self, request.parameters.next(Work.self), request.parameters.next(Category.self), { (work, category) -> EventLoopFuture<HTTPStatus> in
+            
+            return WorkCategoryPivot.query(on: request).group(.and, closure: { (and) in
+                
+                and.filter(\.workID == work.id!)
+                
+                and.filter(\.categoryID == category.id!)
+            }).first().flatMap(to: HTTPStatus.self, { (pivot) -> EventLoopFuture<HTTPStatus> in
+                
+                guard let pivot = pivot else {
+                    
+                    throw Abort(HTTPResponseStatus.notFound)
+                }
+                
+                return pivot.delete(on: request).transform(to: HTTPStatus.noContent)
+            })
+        })
+    }
+    
+    func getCategoriesHandler(_ request: Request) throws -> Future<[Category]> {
+        
+        return try request.parameters.next(Work.self).flatMap(to: [Category].self, { (work) -> EventLoopFuture<[Category]> in
+            
+            return try work.category.query(on: request).all()
         })
     }
 }
