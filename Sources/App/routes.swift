@@ -14,4 +14,8 @@ public func routes(_ router: Router) throws {
     let employeeController = EmployeeController()
     
     try router.register(collection: employeeController)
+    
+    let categoryController = CategoryController()
+    
+    try router.register(collection: categoryController)
 }
