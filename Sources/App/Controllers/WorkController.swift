@@ -9,10 +9,6 @@ struct WorkController: RouteCollection {
         
         let workRoutes = router.grouped("api", "works")
         
-        //        router.post("api", "works", use: createHandler)
-        
-        //        workRoutes.post(use: createHandler)
-        
         workRoutes.post(Work.self, use: createHandler)
         
         workRoutes.get(use: getAllHandler)
