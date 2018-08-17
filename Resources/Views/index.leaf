@@ -1,0 +1,25 @@
+#set("content") {
+    <h1 class="text-center">Works</h1>
+    #if(count(works) > 0) {
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Project Name</th>
+                    <th>Percent Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                #for(work in works) {
+                    <tr>
+                        <td><a href="works/#(work.id)">#(work.projectName)</a></td>
+                        <td>#(work.percentProgress)%</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    } else {
+        <h2>There aren't any works available to show</h2>
+    }
+}
+
+#embed("base")

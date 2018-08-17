@@ -1,0 +1,16 @@
+#set("content") {
+    <h1 class="text-center">All Categories</h1>
+    #if(count(categories) > 0) {
+        <dl>
+            <dt>Name</dt>
+            #for(category in categories) {
+                <dd>- <a href="/categories/#(category.id)">#(category.name)</a></dd>
+            }
+        </dl>
+    } else {
+        <h2>There aren't any categories to show</h2>
+    }
+}
+
+#embed("base")
+

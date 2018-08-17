@@ -1,0 +1,23 @@
+#set("content") {
+    <h1>Work detail</h1>
+    <dl>
+        <dt>Project Name</dt>
+        <dd>- #(work.projectName)</dd>
+        <dt>Percent Finished</dt>
+        <dd>- #(work.percentProgress)%</dd>
+        <dt>Assigned Employee</dt>
+        <dd>- <a href="/employees/#(employee.id)">#(employee.name)</a></dd>
+        #if(count(categories) > 0) {
+            <dt>Categories</dt>
+            #for(category in categories) {
+                <dd>- <a href="/categories/#(category.id)">#(category.name)</a></dd>
+            }
+        }
+    </dl>
+    <form method="post" action="/works/#(work.id)/delete">
+        <a href="/works/#(work.id)/edit" class="btn btn-primary" role="button">Edit</a>&nbsp;
+        <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+}
+
+#embed("base")

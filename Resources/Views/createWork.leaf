@@ -1,0 +1,36 @@
+#set("content") {
+    <h1>#(title)</h1>
+    <form method="post">
+        <div class="form-group">
+            <label for="name">Project Name</label>
+            <input type="text" name="projectName" class="form-control" id="name" #if(isEditing){value="#(work.projectName)"} />
+        </div>
+        <div class="form-group">
+            <label for="progress">Percent Progress</label>
+            <input type="text" name="percentProgress" class="form-control" id="progress" #if(isEditing){value="#(work.percentProgress)"} />
+        </div>
+        <div class="form-group">
+            <label for="employee">Assign to Employee</label>
+            <select name="employeeID" class="form-control" id="employee">
+                #for(employee in employees) {
+                    <option value="#(employee.id)" #if(isEditing){#if(work.employeeID == employee.id){selected}}>
+                        #(employee.name)
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="categories">Add to Category</label>
+            <select name="categories[]" class="form-control" id="categories" placeholder="Categories" multiple="multiple">
+                #if(isEditing) {
+                    #for(category in categories) {
+                        <option value="#(category.name)" selected="selected">#(category.name)</option>
+                    }
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">#if(isEditing){Update} else {Submit}</button>
+    </form>
+}
+
+#embed("base")

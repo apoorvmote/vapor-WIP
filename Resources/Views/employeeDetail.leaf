@@ -1,0 +1,24 @@
+#set("content") {
+    <h1 class="text-center">#(employee.name)</h1>
+    <p class="text-center">#(employee.username)</p>
+    #if(count(works) > 0) {
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Project Name</th>
+                    <th>Percent Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                #for(work in works) {
+                    <tr>
+                        <td><a href="/works/#(work.id)">#(work.projectName)</a></td>
+                        <td>#(work.percentProgress)%</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+#embed("base")

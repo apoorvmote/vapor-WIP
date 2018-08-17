@@ -2,11 +2,13 @@
 //import FluentMySQL
 import Vapor
 import FluentPostgreSQL
+import Leaf
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
     /// Register providers first
     try services.register(FluentPostgreSQLProvider())
+    try services.register(LeafProvider())
 
     /// Register routes to the router
     let router = EngineRouter.default()
@@ -15,21 +17,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
     /// Register middleware
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
-    /// middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
+    middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
-
-    // Configure a SQLite database
-//    let sqlite = try SQLiteDatabase(storage: .memory)
-//    let sqlite = try SQLiteDatabase(storage: SQLiteStorage.file(path: "db.sqlite"))
-
-    // Configure a MySQL database
-//    let databaseConfig = MySQLDatabaseConfig(hostname: "localhost", port: 3306, username: "apoorv", password: "password", database: "wip")
-//    let mysql = MySQLDatabase(config: databaseConfig)
-    
-    // Configure a PostgreSQL database
-//    let databaseConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "apoorv", database: "wip", password: "password")
-//    let postgres = PostgreSQLDatabase(config: databaseConfig)
 
     // Configure a Remote database
     let database: String
@@ -73,6 +63,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(migrations)
     
     var commandConfig = CommandConfig.default()
-    commandConfig.use(RevertCommand.self, as: "revert")
+    commandConfig.useFluentCommands()
     services.register(commandConfig)
+    
+    config.prefer(LeafRenderer.self, for: ViewRenderer.self)
 }

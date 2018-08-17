@@ -18,4 +18,8 @@ public func routes(_ router: Router) throws {
     let categoryController = CategoryController()
     
     try router.register(collection: categoryController)
+    
+    let websiteController = WebsiteController()
+    
+    try router.register(collection: websiteController)
 }

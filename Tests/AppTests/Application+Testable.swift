@@ -30,11 +30,15 @@ extension Application {
         return app
     }
     
-    static func revert() throws {
+    static func reset() throws {
         
         let revertArgs = ["vapor", "revert", "--all", "-y"]
         
         _ = try self.testable(envArgs: revertArgs).asyncRun().wait()
+        
+        let migrateArgs = ["vapor", "migrate", "-y"]
+        
+        _ = try self.testable(envArgs: migrateArgs).asyncRun().wait()
     }
     
     func sendRequest<T>(to path: String, method: HTTPMethod = .GET, headers: HTTPHeaders = .init(), body: T?) throws -> Response where T: Content {

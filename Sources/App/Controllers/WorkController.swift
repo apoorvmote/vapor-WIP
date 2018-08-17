@@ -144,10 +144,8 @@ struct WorkController: RouteCollection {
     func addCategoryHandler(_ request: Request) throws -> Future<HTTPStatus> {
         
         return try flatMap(to: HTTPStatus.self, request.parameters.next(Work.self), request.parameters.next(Category.self), { (work, category) -> EventLoopFuture<HTTPStatus> in
-            
-            let pivot = try WorkCategoryPivot(work.requireID(), category.requireID())
-            
-            return pivot.save(on: request).transform(to: HTTPStatus.created)
+
+            return work.categories.attach(category, on: request).transform(to: .created)
         })
     }
     
@@ -155,20 +153,7 @@ struct WorkController: RouteCollection {
         
         return try flatMap(to: HTTPStatus.self, request.parameters.next(Work.self), request.parameters.next(Category.self), { (work, category) -> EventLoopFuture<HTTPStatus> in
             
-            return WorkCategoryPivot.query(on: request).group(.and, closure: { (and) in
-                
-                and.filter(\.workID == work.id!)
-                
-                and.filter(\.categoryID == category.id!)
-            }).first().flatMap(to: HTTPStatus.self, { (pivot) -> EventLoopFuture<HTTPStatus> in
-                
-                guard let pivot = pivot else {
-                    
-                    throw Abort(HTTPResponseStatus.notFound)
-                }
-                
-                return pivot.delete(on: request).transform(to: HTTPStatus.noContent)
-            })
+            return work.categories.detach(category, on: request).transform(to: .noContent)
         })
     }
     
@@ -176,7 +161,7 @@ struct WorkController: RouteCollection {
         
         return try request.parameters.next(Work.self).flatMap(to: [Category].self, { (work) -> EventLoopFuture<[Category]> in
             
-            return try work.category.query(on: request).all()
+            return try work.categories.query(on: request).all()
         })
     }
 }

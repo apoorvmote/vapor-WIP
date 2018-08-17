@@ -59,7 +59,7 @@ struct EmployeeController: RouteCollection {
         
         return try request.parameters.next(Employee.self).flatMap(to: [Work].self, { (employee) -> EventLoopFuture<[Work]> in
             
-            return try employee.work.query(on: request).all()
+            return try employee.works.query(on: request).all()
         })
     }
 }

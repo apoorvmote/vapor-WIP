@@ -27,7 +27,7 @@ extension Employee: Parameter {}
 
 extension Employee {
     
-    var work: Children<Employee, Work> {
+    var works: Children<Employee, Work> {
         
         return children(\.employeeID)
     }

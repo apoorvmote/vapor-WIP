@@ -1,7 +1,7 @@
 
 import FluentPostgreSQL
 
-final class WorkCategoryPivot: PostgreSQLUUIDPivot {
+final class WorkCategoryPivot: PostgreSQLUUIDPivot, ModifiablePivot {
     
     var id: UUID?
     
@@ -17,11 +17,11 @@ final class WorkCategoryPivot: PostgreSQLUUIDPivot {
     
     static let rightIDKey: RightIDKey = \.categoryID
     
-    init(_ workID: Work.ID, _ categoryID: Category.ID) {
+    init(_ work: Work, _ category: Category) throws {
         
-        self.workID = workID
+        workID = try work.requireID()
         
-        self.categoryID = categoryID
+        categoryID = try category.requireID()
     }
 }
 
@@ -33,9 +33,9 @@ extension WorkCategoryPivot: Migration {
             
             try addProperties(to: builder)
             
-            builder.reference(from: \.workID, to: \Category.id)
+            builder.reference(from: \.workID, to: \Category.id, onDelete: .cascade)
             
-            builder.reference(from: \.categoryID, to: \Category.id)
+            builder.reference(from: \.categoryID, to: \Category.id, onDelete: .cascade)
         })
     }
 }

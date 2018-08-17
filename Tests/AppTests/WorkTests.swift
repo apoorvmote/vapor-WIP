@@ -22,7 +22,7 @@ final class WorkTests: XCTestCase {
     
     override func setUp() {
         
-        try! Application.revert()
+        try! Application.reset()
         
         app = try! Application.testable()
         

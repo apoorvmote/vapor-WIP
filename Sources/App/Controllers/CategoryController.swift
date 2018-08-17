@@ -56,7 +56,7 @@ struct CategoryController: RouteCollection {
         
         return try request.parameters.next(Category.self).flatMap(to: [Work].self, { (category) -> EventLoopFuture<[Work]> in
             
-            return try category.work.query(on: request).all()
+            return try category.works.query(on: request).all()
         })
     }
 }

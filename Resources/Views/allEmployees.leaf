@@ -1,0 +1,25 @@
+#set("content") {
+    <h1 class="text-center">All Employees</h1>
+    #if(count(employees) > 0) {
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                </tr>
+            </thead>
+            <tbody>
+                #for(employee in employees) {
+                <tr>
+                    <td><a href="/employees/#(employee.id)">#(employee.name)</a></td>
+                    <td>#(employee.username)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    } else {
+        <h2>There aren't any employees to show</h2>
+    }
+}
+
+#embed("base")
