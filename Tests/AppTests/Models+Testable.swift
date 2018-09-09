@@ -6,6 +6,8 @@ import Vapor
 
 import FluentPostgreSQL
 
+import Crypto
+
 extension Work {
     
     static func create(projectName: String = "Logo Design", percentProgress: Int = 20, employee: Employee? = nil, conn: PostgreSQLConnection) throws -> Work {
@@ -25,9 +27,13 @@ extension Work {
 
 extension Employee {
     
-    static func create(name: String = "John Doe", username: String = "johndoe", conn: PostgreSQLConnection) throws -> Employee {
+    static func create(name: String = "John Doe", username: String? = nil, conn: PostgreSQLConnection) throws -> Employee {
         
-        let employee = Employee(name: name, username: username)
+        let loginUsername = username ?? UUID().uuidString
+        
+        let password = try BCrypt.hash("password")
+        
+        let employee = Employee(name: name, username: loginUsername, password: password)
         
         return try employee.save(on: conn).wait()
     }

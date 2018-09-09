@@ -7,19 +7,31 @@ struct CategoryController: RouteCollection {
     
     func boot(router: Router) throws {
         
-        let categoriesRoute = router.grouped("api", "categories")
+        let categoryRoutes = router.grouped("api", "categories")
         
-        categoriesRoute.post(Category.self, use: createHandler)
+//        categoriesRoutes.post(Category.self, use: createHandler)
         
-        categoriesRoute.get(use: getAllHandler)
+        categoryRoutes.get(use: getAllHandler)
         
-        categoriesRoute.get(Category.parameter, use: getHandler)
+        categoryRoutes.get(Category.parameter, use: getHandler)
         
-        categoriesRoute.put(Category.self, at: Category.parameter, use: updateHandler)
+//        categoriesRoutes.put(Category.self, at: Category.parameter, use: updateHandler)
+//
+//        categoriesRoutes.delete(Category.parameter, use: deleteHandler)
         
-        categoriesRoute.delete(Category.parameter, use: deleteHandler)
+        categoryRoutes.get(Category.parameter, "works", use: getWorksHandler)
         
-        categoriesRoute.get(Category.parameter, "works", use: getWorksHandler)
+        let tokenAuthMiddleware = Employee.tokenAuthMiddleware()
+        
+        let guardAuthMiddleware = Employee.guardAuthMiddleware()
+        
+        let tokenAuthRoutes = categoryRoutes.grouped(tokenAuthMiddleware, guardAuthMiddleware)
+        
+        tokenAuthRoutes.post(Category.self, use: createHandler)
+        
+        tokenAuthRoutes.put(Category.self, at: Category.parameter, use: updateHandler)
+        
+        tokenAuthRoutes.delete(Category.parameter, use: deleteHandler)
     }
     
     func createHandler(_ request: Request, category: Category) throws -> Future<Category> {

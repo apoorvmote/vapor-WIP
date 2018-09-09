@@ -3,21 +3,23 @@ import Vapor
 
 import Fluent
 
+import Authentication
+
 struct WorkController: RouteCollection {
     
     func boot(router: Router) throws {
         
         let workRoutes = router.grouped("api", "works")
         
-        workRoutes.post(Work.self, use: createHandler)
+//        workRoutes.post(Work.self, use: createHandler)
         
         workRoutes.get(use: getAllHandler)
         
         workRoutes.get(Work.parameter, use: getHandler)
         
-        workRoutes.put(Work.self, at: Work.parameter, use: updateHandler)
+//        workRoutes.put(Work.self, at: Work.parameter, use: updateHandler)
         
-        workRoutes.delete(Work.parameter, use: deleteHandler)
+//        workRoutes.delete(Work.parameter, use: deleteHandler)
         
         workRoutes.get("first", use: getFirstHandler)
         
@@ -31,11 +33,35 @@ struct WorkController: RouteCollection {
         
         workRoutes.get(Work.parameter, "employee", use: getEmployeeHandler)
         
-        workRoutes.post(Work.parameter, "categories", Category.parameter, use: addCategoryHandler)
+//        workRoutes.post(Work.parameter, "categories", Category.parameter, use: addCategoryHandler)
         
-        workRoutes.delete(Work.parameter, "categories", Category.parameter, use: deleteCategoryHandler)
+//        workRoutes.delete(Work.parameter, "categories", Category.parameter, use: deleteCategoryHandler)
         
         workRoutes.get(Work.parameter, "categories", use: getCategoriesHandler)
+
+        let tokenAuthMiddleware = Employee.tokenAuthMiddleware()
+        
+        let guardAuthMiddleware = Employee.guardAuthMiddleware()
+        
+        let tokenAuthRoutes = workRoutes.grouped(tokenAuthMiddleware, guardAuthMiddleware)
+        
+        tokenAuthRoutes.post(WorkCreateData.self, use: createHandler)
+        
+        tokenAuthRoutes.put(WorkCreateData.self, at: Work.parameter, use: updateHandler)
+        
+        tokenAuthRoutes.delete(Work.parameter, use: deleteHandler)
+        
+        tokenAuthRoutes.post(Work.parameter, "categories", Category.parameter, use: addCategoryHandler)
+        
+        tokenAuthRoutes.delete(Work.parameter, "categories", Category.parameter, use: deleteCategoryHandler)
+        
+//        let basicAuthMiddleware = Employee.basicAuthMiddleware(using: BCryptDigest())
+//
+//        let guardAuthMiddleware = Employee.guardAuthMiddleware()
+//
+//        let authRoutes = workRoutes.grouped(basicAuthMiddleware, guardAuthMiddleware)
+//
+//        authRoutes.post(Work.self, use: createHandler)
     }
     
     //    func createHandler(_ request: Request) throws -> Future<Work> {
@@ -46,7 +72,11 @@ struct WorkController: RouteCollection {
     //        })
     //    }
     
-    func createHandler(_ request: Request, work: Work) throws -> Future<Work> {
+    func createHandler(_ request: Request, data: WorkCreateData) throws -> Future<Work> {
+        
+        let employee = try request.requireAuthenticated(Employee.self)
+        
+        let work = try Work(name: data.projectName, progress: data.percentProgress, employeeID: employee.requireID())
         
         return work.save(on: request)
     }
@@ -61,15 +91,17 @@ struct WorkController: RouteCollection {
         return try request.parameters.next(Work.self)
     }
     
-    func updateHandler(_ request: Request, updatedWork: Work) throws -> Future<Work> {
+    func updateHandler(_ request: Request, data: WorkCreateData) throws -> Future<Work> {
         
         return try request.parameters.next(Work.self).flatMap(to: Work.self, { (work) -> EventLoopFuture<Work> in
             
-            work.projectName = updatedWork.projectName
+            work.projectName = data.projectName
             
-            work.percentProgress = updatedWork.percentProgress
+            work.percentProgress = data.percentProgress
             
-            work.employeeID = updatedWork.employeeID
+            let employee = try request.requireAuthenticated(Employee.self)
+            
+            work.employeeID = try employee.requireID()
             
             return work.save(on: request)
         })
@@ -133,11 +165,11 @@ struct WorkController: RouteCollection {
         return Work.query(on: request).sort(\.projectName, .ascending).all()
     }
     
-    func getEmployeeHandler(_ request: Request) throws -> Future<Employee> {
+    func getEmployeeHandler(_ request: Request) throws -> Future<Employee.Public> {
         
-        return try request.parameters.next(Work.self).flatMap(to: Employee.self, { (work) -> EventLoopFuture<Employee> in
+        return try request.parameters.next(Work.self).flatMap(to: Employee.Public.self, { (work) -> EventLoopFuture<Employee.Public> in
             
-            return work.employee.get(on: request)
+            return work.employee.get(on: request).convertToPublic()
         })
     }
     
@@ -166,3 +198,9 @@ struct WorkController: RouteCollection {
     }
 }
 
+struct WorkCreateData: Content {
+    
+    let projectName: String
+    
+    let percentProgress: Int
+}

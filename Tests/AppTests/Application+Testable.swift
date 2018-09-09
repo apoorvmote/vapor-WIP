@@ -1,10 +1,12 @@
 
 
-import App
+@testable import App
 
 import Vapor
 
 import FluentPostgreSQL
+
+import Authentication
 
 extension Application {
     

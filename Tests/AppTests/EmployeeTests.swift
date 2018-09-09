@@ -36,7 +36,7 @@ final class EmployeeTests: XCTestCase {
     
     func testEmployeeCanBeSavedWithAPI() throws {
         
-        let employee = Employee(name: employeeName, username: username)
+        let employee = Employee(name: employeeName, username: username, password: "password")
         
         let receivedEmployee = try app.getResponse(to: employeesURI, method: .POST, headers: ["Content-Type": "application/json"], data: employee, decodeTo: Employee.self)
         
@@ -82,7 +82,7 @@ final class EmployeeTests: XCTestCase {
         
         let receivedEmployee = try Employee.create(name: "Jane Doe", username: "janedoe", conn: conn)
         
-        let updatedEmployee = Employee(name: employeeName, username: username)
+        let updatedEmployee = Employee(name: employeeName, username: username, password: "password")
         
         _ = try app.sendRequest(to: "\(employeesURI)\(receivedEmployee.id!)", method: .PUT, headers: ["Content-Type": "application/json"], body: updatedEmployee)
         
